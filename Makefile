@@ -7,12 +7,13 @@ ARCHLINUX_TAR ?= ArchLinuxARM-rpi-3-latest.tar.gz
 ARCHLINUX_QEMU ?= qemu-aarch64-static
 # ARCHLINUX_CC_URL ?= https://archlinuxarm.org/builder/xtools/x-tools7h.tar.xz
 
-tmp/image.tar.gz: docker
+tarball: docker
 	docker create --name $(DOCKER_IMAGE_NAME)-$(ARCHLINUX_ARCH) --entrypoint /bin/sh $(DOCKER_IMAGE_NAME):$(ARCHLINUX_ARCH)
 	docker export $(DOCKER_IMAGE_NAME)-$(ARCHLINUX_ARCH) > tmp/image.tar.gz
 	docker rm $(DOCKER_IMAGE_NAME)-$(ARCHLINUX_ARCH)
+	@echo ">> tarball built to tmp/image.tar.gz"
 
-docker: deps
+docker: deps build-arm64
 	mkdir -p bin
 	@echo ">> building rpi image for $(ARCHLINUX_ARCH)"
 	docker build \
@@ -27,6 +28,16 @@ deps:
 	wget -c $(ARCHLINUX_URL) -O tmp/$(ARCHLINUX_TAR)
 	echo ">> copying $(ARCHLINUX_QEMU) binary"
 	cp $(shell which $(ARCHLINUX_QEMU)) ./tmp/
+
+build-arm64:
+	echo ">> creating directory bin"
+	mkdir -p bin
+	env GOARCH=arm64 \
+		GO111MODULE=on \
+		GOOS=linux \
+		CGO_ENABLED=0 \
+		go build -o bin/pik3sadm -v -x -ldflags="-s -w" cmd/pik3sadm/main.go
+
 
 clean:
 	rm -rf ./tmp ./bin

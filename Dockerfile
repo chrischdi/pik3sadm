@@ -14,8 +14,10 @@ RUN pacman -Syyuu --noconfirm
 
 # install stuff
 RUN pacman --noconfirm -S \
+    bind-tools \
     htop \
     sudo \
+    wpa_supplicant \
     vim
 
 # remove some stuff
@@ -42,10 +44,11 @@ RUN userdel alarm \
 RUN groupadd -g 1000 kube \
   && useradd -m -g kube -u 1000 kube \
   && usermod -aG wheel kube \
-  && echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/wheel
+  && echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel
 
 ADD image/pik3s-init.service /etc/systemd/system/
 RUN systemctl enable pik3s-init.service
+ADD bin/pik3sadm /boot/pik3sadm
 
 # cleanup
 RUN rm -rf /temp \

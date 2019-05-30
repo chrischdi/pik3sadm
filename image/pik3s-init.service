@@ -5,8 +5,7 @@ ConditionFirstBoot=yes
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-#ExecStart=/boot/pik3sadm install
-ExecStart=/boot/pik3s.sh
+ExecStart=/boot/pik3sadm
 
 [Install]
 WantedBy=multi-user.target
