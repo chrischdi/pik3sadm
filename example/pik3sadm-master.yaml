@@ -1,0 +1,27 @@
+hostname: kubepi1
+network:
+  ip_address: 10.6.0.11
+  gateway: 10.6.0.1
+  dns: ["1.1.1.1", "10.6.0.1"]
+
+ssh_public_keys:
+- "ssh-rsa <...>"
+
+# prerequirement: disk having two partitions formatted to xfs
+mounts:
+- device: /dev/sda1
+  filesystem: xfs
+  destination: /var/lib/rancher
+- device: /dev/sda2
+  filesystem: xfs
+  destination: /srv
+  bind_mounts:
+  - source: opt
+    destination: /opt
+  - source: usr/local/bin
+    destination: /usr/local/bin
+  - source: etc/rancher
+    destination: /etc/rancher
+
+k3s:
+  master: true
